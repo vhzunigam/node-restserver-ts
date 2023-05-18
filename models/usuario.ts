@@ -1,11 +1,17 @@
-import { DataTypes } from "sequelize";
+import { DataTypes, Model } from "sequelize";
 
-import db from "../db/connection";
+import sequelize from "../db/connection";
 
-const Usuario = db.define('Usuario', {
+class Usuario extends Model { }
+
+Usuario.init({
     nombre: { type: DataTypes.STRING },
+    password: { type: DataTypes.STRING },
     email: { type: DataTypes.STRING },
-    estado: { type: DataTypes.BOOLEAN },
+    estado: { type: DataTypes.BOOLEAN, defaultValue: true },
+    google: { type: DataTypes.BOOLEAN }
+}, {
+    sequelize
 });
 
 export default Usuario;

@@ -1,6 +1,9 @@
 import cors from "cors";
 import express, { Application } from "express";
-import usuarioRoutes from "../routes/usuario";
+
+import authRoutes from "../routes/auth";
+import productosRoutes from "../routes/productos";
+import usuariosRoutes from "../routes/usuarios";
 
 import db from '../db/connection';
 
@@ -9,6 +12,8 @@ class Server {
     private app: Application;
     private port: string;
     private apiPaths = {
+        auth: '/api/auth',
+        productos: '/api/productos',
         usuarios: '/api/usuarios'
     };
 
@@ -40,12 +45,15 @@ class Server {
 
             console.log('Database online');
         } catch (error) {
-            throw new Error(error+'');
+            // if(error instanceof Error)
+            //     throw new Error(error.message);
         }
     }
 
     routes() {
-        this.app.use(this.apiPaths.usuarios, usuarioRoutes);
+        this.app.use(this.apiPaths.auth, authRoutes);
+        this.app.use(this.apiPaths.productos, productosRoutes);
+        this.app.use(this.apiPaths.usuarios, usuariosRoutes);
     }
 
     listen() {
