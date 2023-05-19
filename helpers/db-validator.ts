@@ -1,3 +1,5 @@
+import Marca from '../models/marca';
+import Producto from '../models/producto';
 import /*{ Categoria, Role,*/ Usuario /*, Producto }*/ from '../models/usuario';
 
 // const esRolValido = async (rol = '') => {
@@ -8,21 +10,35 @@ import /*{ Categoria, Role,*/ Usuario /*, Producto }*/ from '../models/usuario';
 //     }
 // }
 
-export const emailExiste = async (email = '') => {
+export const existeEmail = async (email = '') => {
     const existeEmail = await Usuario.findOne({
         where: {
             email: email
         }
     });
     if (existeEmail) {
-        throw new Error(`El correo: ${email} ya esta registradó en la BD`);
+        throw new Error(`Ya existe el un usuario con el correo [${email}]`);
+    }
+}
+
+export const existeMarcaPorId = async (id = '') => {
+    const existeMarca = await Marca.findByPk(id);
+    if (!existeMarca) {
+        throw new Error(`No existe la marca con ID [${id}]`);
+    }
+}
+
+export const existeProductoPorId = async (id = '') => {
+    const existeProducto = await Producto.findByPk(id);
+    if (!existeProducto) {
+        throw new Error(`No existe le producto con ID [${id}]`);
     }
 }
 
 export const existeUsuarioPorId = async (id = '') => {
     const existeUsuario = await Usuario.findByPk(id);
     if (!existeUsuario) {
-        throw new Error(`El id: ${id} no existe en la BD`);
+        throw new Error(`No existe el usuario con ID [${id}]`);
     }
 }
 

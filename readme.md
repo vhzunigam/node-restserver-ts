@@ -12,6 +12,7 @@ Al descargar ejecutar ```npm install``` para recontruir los módulos de Node.
 - ["express-validator": "^7.0.1"](https://www.npmjs.com/package/express-validator)
 - ["google-auth-library": "^8.8.0"](https://www.npmjs.com/package/google-auth-library)
 - ["jsonwebtoken": "^9.0.0"](https://www.npmjs.com/package/jsonwebtoken)
+- ["morgan": "^1.10.0"](https://www.npmjs.com/package/morgan)
 - ["mysql2": "^3.3.1"](https://www.npmjs.com/package/mysql2)
 - ["sequelize": "^6.31.1"](https://www.npmjs.com/package/sequelize)
 
@@ -21,4 +22,5 @@ npm i --save-dev @types/bcryptjs
 npm i --save-dev @types/cors
 npm i --save-dev @types/express
 npm i --save-dev @types/jsonwebtoken
+npm i --save-dev @types/morgan
 ```

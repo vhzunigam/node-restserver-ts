@@ -1,97 +1,93 @@
 import bcryptjs from "bcryptjs";
 import { Request, Response } from "express";
 
-import { generaJWT } from '../helpers/generar-jwt';
-import { googleVerify } from "../helpers/google-verify";
+import { generaJWT, googleVerify } from '../helpers';
 import Usuario from "../models/usuario";
 
-export const auth = async (req: Request, res: Response) => {
+class AuthController {
+    public async auth(req: Request, res: Response) {
+        try {
+            const { email, password } = req.body;
+            const usuario = await Usuario.findOne({ where: { email: email } });
 
-    const { email, password } = req.body;
+            if (!usuario) {
+                return res.status(400).json({
+                    msg: 'Usuario / password no son correctos - correo'
+                });
+            }
 
-    try {
-        const usuario = await Usuario.findOne({ where: { email: email } });
+            // Usuario activo
 
-        if (!usuario) {
-            return res.status(400).json({
-                msg: 'Usuario / password no son correctos - correo'
+            if (!usuario?.dataValues.estado) {
+                return res.status(400).json({
+                    msg: 'Usuario / password no son correctos - password - false'
+                });
+            }
+
+            // Verificar la contraseña
+
+            const validPass = bcryptjs.compareSync(password, usuario?.dataValues.password);
+
+            if (!validPass) {
+                return res.status(400).json({
+                    msg: 'Usuario / password no son correctos - password'
+                });
+            }
+
+            const token = await generaJWT(usuario?.dataValues.id);
+
+            res.json({
+                usuario,
+                token
             });
+
+        } catch (error) {
+            if (error instanceof Error) console.error(error.message);
+            return res.status(500).json({ msg: 'Ocurrio un problema interno' });
         }
-
-        // Usuario activo
-
-        if (!usuario?.dataValues.estado) {
-            return res.status(400).json({
-                msg: 'Usuario / password no son correctos - password - false'
-            });
-        }
-
-        // Verificar la contraseña
-
-        const validPass = bcryptjs.compareSync(password, usuario?.dataValues.password);
-
-        if (!validPass) {
-            return res.status(400).json({
-                msg: 'Usuario / password no son correctos - password'
-            });
-        }
-
-        const token = await generaJWT(usuario?.dataValues.id);
-
-        res.json({
-            usuario,
-            token
-        });
-
-    } catch (error) {
-        return res.status(500).json({ msg: 'Error interno' });
     }
 
-}
+    public async googleSignIn(req: Request, res: Response) {
+        try {
+            const { id_token } = req.body;
+            const { nombre, img, email } = await googleVerify(id_token);
 
-export const googleSignIn = async (req: Request, res: Response) => {
-    const { id_token } = req.body;
+            let usuario = await Usuario.findOne({ where: { email: email } });
 
-    try {
+            if (!usuario) {
+                const data = {
+                    nombre,
+                    email,
+                    password: '',
+                    img,
+                    google: true
+                };
 
-        const { nombre, img, email } = await googleVerify(id_token);
+                usuario = Usuario.build(data);
 
-        let usuario = await Usuario.findOne({ where: { email: email } });
+                await usuario.save();
+            }
 
-        if (!usuario) {
-            const data = {
-                nombre,
-                email,
-                password: '',
-                img,
-                google: true
-            };
+            // Si el usuario en bd
+            if (!usuario.dataValues.estado) {
+                return res.status(400).json({
+                    ok: false,
+                    msg: 'Hable con el administrador, usuario bloqueado'
+                });
+            }
 
-            usuario = Usuario.build(data);
+            const token = await generaJWT(usuario.dataValues.id);
 
-            await usuario.save();
-        }
-
-        // Si el usuario en bd
-        if (!usuario.dataValues.estado) {
-            return res.status(400).json({
-                ok: false,
-                msg: 'Hable con el administrador, usuario bloqueado'
+            res.json({
+                usuario,
+                token
             });
+
+        } catch (error) {
+            if (error instanceof Error) console.error(error.message);
+            return res.status(500).json({ msg: 'Ocurrio un problema interno' });
         }
-
-        const token = await generaJWT(usuario.dataValues.id);
-
-        res.json({
-            usuario,
-            token
-        });
-
-    } catch (error) {
-        console.error(error);
-        return res.status(400).json({
-            msg: 'Ocurrio un error al autenticar el token de google'
-        });
     }
-
 }
+
+export const authController = new AuthController();

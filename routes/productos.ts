@@ -1,24 +1,36 @@
-import { Response, Router } from "express";
+import { Router } from "express";
+import { check } from 'express-validator';
 
-import { actualizarProducto, crearProducto, eliminarProducto, obtenerProducto, obtenerProductos } from '../controller/productos';
-import { validarJWT } from "../middlewares/valida-jwt";
-import { validarCampos } from "../middlewares/validar-campos";
+import { productoController } from "../controller";
+import { existeMarcaPorId, existeProductoPorId } from '../helpers';
+import { validarCampos, validarJWT } from "../middlewares";
 
 const router = Router();
 
-router.get('/:id', obtenerProducto);
-router.get('/', obtenerProductos);
+router.get('/:id', [
+    check('id', 'No es un id valido').isNumeric(),
+    check('id').custom(existeProductoPorId),
+    validarCampos
+], productoController.obtenerProducto);
+router.get('/', productoController.obtenerProductos);
 router.post('/', [
     validarJWT,
+    check('nombre', 'El nombre es obligatoria').not().isEmpty(),
+    check('marca', 'La marca es obligatoria').not().isEmpty(),
+    check('marca').custom(existeMarcaPorId),
     validarCampos
-], crearProducto);
+], productoController.crearProducto);
 router.put('/:id', [
     validarJWT,
+    check('id', 'No es un id valido').isNumeric(),
+    check('id').custom(existeProductoPorId),
     validarCampos
-], actualizarProducto);
+], productoController.actualizarProducto);
 router.delete('/:id', [
     validarJWT,
+    check('id', 'No es un id valido').isNumeric(),
+    check('id').custom(existeProductoPorId),
     validarCampos
-], eliminarProducto);
+], productoController.eliminarProducto);
 
 export default router;

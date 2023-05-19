@@ -1,11 +1,11 @@
 import Usuario from "../../models/usuario"
 
-export {}
+export { }
 
 declare global {
-  namespace Express {
-    export interface Request {
-        usuario: Usuario
+    namespace Express {
+        export interface Request {
+            usuario: Usuario
+        }
     }
-  }
 }

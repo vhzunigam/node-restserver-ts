@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { check } from 'express-validator';
 
-import { auth, googleSignIn } from "../controller/auth";
-import { validarCampos } from '../middlewares/validar-campos';
+import { authController } from "../controller";
+import { validarCampos } from '../middlewares';
 
 const router = Router();
 
@@ -10,11 +10,11 @@ router.post('/login', [
     check('email', 'El correo es obligatorio').isEmail(),
     check('password', 'La contraseña es obligatoria').not().isEmpty(),
     validarCampos
-], auth);
+], authController.auth);
 
 router.post('/google', [
     check('id_token', 'ID_TOKEN es necesario').not().isEmpty(),
     validarCampos
-], googleSignIn);
+], authController.googleSignIn);
 
 export default router;

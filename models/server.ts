@@ -1,11 +1,13 @@
+
 import cors from "cors";
 import express, { Application } from "express";
 
+import db from '../db/connection';
+import { setupLogging } from "../logs/logging";
 import authRoutes from "../routes/auth";
+import marcasRoutes from "../routes/marcas";
 import productosRoutes from "../routes/productos";
 import usuariosRoutes from "../routes/usuarios";
-
-import db from '../db/connection';
 
 class Server {
 
@@ -13,6 +15,7 @@ class Server {
     private port: string;
     private apiPaths = {
         auth: '/api/auth',
+        marcas: '/api/marcas',
         productos: '/api/productos',
         usuarios: '/api/usuarios'
     };
@@ -21,10 +24,13 @@ class Server {
         this.app = express();
         this.port = process.env.PORT || '8000';
 
+        setupLogging(this.app);
+
         // Metodos iniciales
         this.dbConnection();
         this.middlewares();
         this.routes();
+
     }
 
     middlewares() {
@@ -38,20 +44,21 @@ class Server {
         this.app.use(express.static('public'));
     }
 
-    async dbConnection(){
+    async dbConnection() {
         try {
 
             await db.authenticate();
 
             console.log('Database online');
         } catch (error) {
-            // if(error instanceof Error)
-            //     throw new Error(error.message);
+            if (error instanceof Error)
+                throw new Error(error.message);
         }
     }
 
     routes() {
         this.app.use(this.apiPaths.auth, authRoutes);
+        this.app.use(this.apiPaths.marcas, marcasRoutes);
         this.app.use(this.apiPaths.productos, productosRoutes);
         this.app.use(this.apiPaths.usuarios, usuariosRoutes);
     }

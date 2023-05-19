@@ -1,34 +1,33 @@
 import { Router } from "express";
 import { check } from 'express-validator';
 
-import { actualizarUsuario, crearUsuario, eliminarUsuario, obtenerUsuario, obtenerUsuarios } from "../controller/usuarios";
-import { emailExiste } from "../helpers/db-validator";
-import { validarJWT } from "../middlewares/valida-jwt";
-import { validarCampos } from "../middlewares/validar-campos";
+import { usuarioController } from "../controller";
+import { existeEmail } from "../helpers";
+import { validarCampos, validarJWT } from "../middlewares";
 
 const router = Router();
 
-router.get('/', obtenerUsuarios);
+router.get('/', usuarioController.obtenerUsuarios);
 router.get('/:id', [
     check('id', 'No es un Id valido').isNumeric(),
     validarCampos
-], obtenerUsuario);
+], usuarioController.obtenerUsuario);
 router.post('/', [
     check('nombre', 'El nombre es obligatorio').not().isEmpty(),
     check('email', 'El corre no es valido').isEmail(),
-    check('email').custom(emailExiste),
+    check('email').custom(existeEmail),
     // check('rol').custom(esRolValido),
     validarCampos
-], crearUsuario);
+], usuarioController.crearUsuario);
 router.put('/:id', [
     check('id', 'No es un Id valido').isNumeric(),
     check('email', 'El corre no es valido').optional().isEmail(),
-    check('email').optional().custom(emailExiste),
+    check('email').optional().custom(existeEmail),
     validarCampos
-], actualizarUsuario);
+], usuarioController.actualizarUsuario);
 router.delete('/:id', [
     validarJWT,
     validarCampos
-], eliminarUsuario);
+], usuarioController.eliminarUsuario);
 
 export default router;

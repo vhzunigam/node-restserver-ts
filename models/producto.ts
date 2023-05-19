@@ -1,6 +1,7 @@
 import { DataTypes, Model } from "sequelize";
 
 import sequelize from "../db/connection";
+import Marca from "./marca";
 import Usuario from './usuario';
 
 class Producto extends Model { }
@@ -16,6 +17,7 @@ Producto.init({
     sequelize
 });
 
+Producto.belongsTo(Marca, { foreignKey: 'marca' });
 Producto.belongsTo(Usuario, { foreignKey: 'usuario' });
 
 export default Producto;
